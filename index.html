@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PawPie QR Generator</title>
+  <style>
+    :root{
+      --bg:#faf6ee;          /* beige */
+      --card:#fffaf0;        /* warm ivory */
+      --border:#e6d9bf;      /* light gold-beige */
+      --text:#1e1a14;        /* deep brown-black */
+      --muted:#6f6456;       /* warm muted */
+      --accent:#b08a3a;      /* gold */
+      --accent2:#d7b46a;     /* soft gold */
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 15% 0%, rgba(176,138,58,.18), transparent 60%),
+        radial-gradient(900px 600px at 85% 10%, rgba(215,180,106,.16), transparent 55%),
+        var(--bg);
+    }
+    .wrap{max-width:980px; margin:0 auto; padding:44px 16px;}
+    .brand{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:14px;
+      margin-bottom:18px;
+    }
+    .brand-left h1{
+      margin:0;
+      font-size:30px;
+      letter-spacing:.2px;
+    }
+    .brand-left p{
+      margin:8px 0 0;
+      color:var(--muted);
+      line-height:1.4;
+    }
+    .badge{
+      display:flex; align-items:center; gap:8px;
+      border:1px solid rgba(176,138,58,.45);
+      color:var(--accent);
+      padding:9px 12px;
+      border-radius:999px;
+      font-size:13px;
+      white-space:nowrap;
+      background: rgba(176,138,58,.08);
+    }
+    .badge .paw{font-size:16px}
+    .card{
+      position:relative;
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.75));
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:18px;
+      box-shadow: 0 18px 45px rgba(30,26,20,.10);
+      overflow:hidden;
+    }
+    /* subtle paw pattern */
+    .card:before{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      background-image:
+        radial-gradient(circle at 12px 12px, rgba(176,138,58,.10) 2px, transparent 3px),
+        radial-gradient(circle at 24px 24px, rgba(176,138,58,.07) 3px, transparent 4px),
+        radial-gradient(circle at 36px 12px, rgba(176,138,58,.08) 2px, transparent 3px);
+      background-size: 72px 72px;
+      transform: rotate(-8deg);
+      opacity:.35;
+      pointer-events:none;
+    }
+    .card > *{ position:relative; }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    input{
+      flex:1;
+      min-width:260px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#fff;
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+    input::placeholder{color:#9a8f80}
+    button, select{
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#fff;
+      color:var(--text);
+      cursor:pointer;
+      font-weight:650;
+      font-size:14px;
+      outline:none;
+    }
+    button.primary{
+      background: linear-gradient(180deg, rgba(176,138,58,.22), rgba(176,138,58,.12));
+      border-color: rgba(176,138,58,.55);
+      color:#2a2217;
+    }
+    button:disabled{opacity:.5; cursor:not-allowed}
+    .smallrow{
+      display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;
+    }
+    .error{color:#b42318; font-size:13px; min-height:18px; margin-top:10px;}
+    .content{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: 1fr 340px;
+      gap:16px;
+    }
+    @media (max-width: 900px){
+      .content{grid-template-columns:1fr}
+    }
+    .panel{
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+      background: rgba(255,255,255,.85);
+    }
+    .panel h3{margin:0 0 10px; font-size:16px}
+    .help{color:var(--muted); font-size:13px; line-height:1.55}
+    #qrcode{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:300px;
+      border:1px dashed rgba(176,138,58,.35);
+      border-radius:16px;
+      background: rgba(255,255,255,.65);
+    }
+    .footer{
+      margin-top:14px;
+      color:var(--muted);
+      font-size:12px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .tiny{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="brand">
+      <div class="brand-left">
+        <h1>Pawpie Sponsored — QR Code Generator</h1>
+        <p>Luxury pet essentials. Generate a QR code for any link and download it instantly.</p>
+      </div>
+      <div class="badge"><span class="paw">🐾</span> Powered by PawPie</div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <input id="urlInput" placeholder="Paste a website URL (e.g., pawpie.com.au)" />
+        <button class="primary" id="genBtn">Generate QR</button>
+      </div>
+
+      <div class="smallrow">
+        <select id="sizeSelect" title="QR size">
+          <option value="200">200 × 200</option>
+          <option value="300" selected>300 × 300</option>
+          <option value="400">400 × 400</option>
+          <option value="600">600 × 600</option>
+        </select>
+
+        <button id="pngBtn" disabled>Download PNG (best)</button>
+        <button id="jpgBtn" disabled>Download JPEG</button>
+        <button id="clearBtn">Clear</button>
+      </div>
+
+      <div class="tiny">Tip: PNG scans sharper than JPEG. Use JPEG only if you need smaller file size.</div>
+
+      <div id="err" class="error"></div>
+
+      <div class="content">
+        <div class="panel">
+          <h3>Your QR Code</h3>
+          <div id="qrcode">Generate a QR to preview it here.</div>
+
+          <div class="footer">
+            <div>Auto-fix: if you type <b>example.com</b>, we add <b>https://</b>.</div>
+            <div><a href="https://pawpie.com.au" target="_blank" rel="noreferrer">Visit PawPie.com.au</a></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>About PawPie</h3>
+          <div class="help">
+            PawPie is a premium pet product brand built around comfort, thoughtful fit, and clean design.
+            Use this tool for product pages, social links, and promotions.
+            <br><br>
+            🐶 <b>Pro tip:</b> Use a bigger size (400–600) for packaging and print.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    const urlInput = document.getElementById("urlInput");
+    const genBtn = document.getElementById("genBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const pngBtn = document.getElementById("pngBtn");
+    const jpgBtn = document.getElementById("jpgBtn");
+    const sizeSelect = document.getElementById("sizeSelect");
+    const qrBox = document.getElementById("qrcode");
+    const errEl = document.getElementById("err");
+
+    function normalizeUrl(raw){
+      let v = (raw || "").trim();
+      if (!v) return "";
+      if (!/^https?:\/\//i.test(v)) v = "https://" + v;
+      return v;
+    }
+
+    function setError(msg){
+      errEl.textContent = msg || "";
+    }
+
+    function getCanvas(){
+      return qrBox.querySelector("canvas");
+    }
+
+    function enableDownloads(enable){
+      pngBtn.disabled = !enable;
+      jpgBtn.disabled = !enable;
+    }
+
+    function generateQR(){
+      setError("");
+      const size = parseInt(sizeSelect.value, 10);
+      const url = normalizeUrl(urlInput.value);
+
+      qrBox.innerHTML = "";
+      enableDownloads(false);
+
+      if (!url){
+        setError("Enter a URL first.");
+        return;
+      }
+
+      try { new URL(url); }
+      catch {
+        setError("That doesn’t look like a valid URL.");
+        return;
+      }
+
+      new QRCode(qrBox, {
+        text: url,
+        width: size,
+        height: size,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
+      // enable downloads after render
+      setTimeout(() => {
+        const canvas = getCanvas();
+        enableDownloads(!!canvas);
+        if (!canvas) setError("Could not render QR. Try Chrome.");
+      }, 0);
+    }
+
+    function download(type){
+      const canvas = getCanvas();
+      if (!canvas) return;
+
+      const ext = type === "jpeg" ? "jpg" : "png";
+      const mime = type === "jpeg" ? "image/jpeg" : "image/png";
+
+      if (type === "jpeg") {
+        // give JPEG a white background
+        const tmp = document.createElement("canvas");
+        tmp.width = canvas.width;
+        tmp.height = canvas.height;
+        const ctx = tmp.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, tmp.width, tmp.height);
+        ctx.drawImage(canvas, 0, 0);
+        triggerDownload(tmp.toDataURL(mime, 0.92), ext);
+      } else {
+        triggerDownload(canvas.toDataURL(mime), ext);
+      }
+    }
+
+    function triggerDownload(dataUrl, ext){
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `pawpie-qr-${sizeSelect.value}x${sizeSelect.value}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function clearAll(){
+      urlInput.value = "";
+      qrBox.innerHTML = "Generate a QR to preview it here.";
+      setError("");
+      enableDownloads(false);
+    }
+
+    genBtn.addEventListener("click", generateQR);
+    clearBtn.addEventListener("click", clearAll);
+    pngBtn.addEventListener("click", () => download("png"));
+    jpgBtn.addEventListener("click", () => download("jpeg"));
+
+    // Enter key generates
+    urlInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") generateQR();
+    });
+
+    // ✅ FIX: size change actually works now (auto-regenerate if a QR already exists)
+    sizeSelect.addEventListener("change", () => {
+      if (urlInput.value.trim() !== "") generateQR();
+    });
+  </script>
+</body>
+</html>
